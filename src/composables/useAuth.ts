@@ -29,7 +29,7 @@ supabase.auth.onAuthStateChange((_event, newSession) => {
 export function useAuth(): UseAuth {
   async function signOut() {
     const { error } = await supabase.auth.signOut()
-    if (error) console.error(error)
+    if (error) throw error
     user.value = null
     session.value = null
   }

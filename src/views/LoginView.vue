@@ -49,7 +49,7 @@ const login = async () => {
       <Button
         :disabled="loading"
         type="submit"
-        class="w-full bg-[#534AB7] hover:bg-[#4740a0] text-white rounded-xl py-3 text-base font-medium :disabled:opacity-50"
+        class="w-full bg-[#534AB7] hover:bg-[#4740a0] text-white rounded-xl py-3 text-base font-medium disabled:opacity-50"
       >
         <span v-if="loading">Sending magic link...</span>
         <span v-else>Send magic link</span>
