@@ -2,8 +2,26 @@
 import { RouterLink, useRoute } from 'vue-router'
 import { Home, Settings, Plus } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/composables/useAuth'
+import router from '@/router'
+import { ref } from 'vue'
 
 const route = useRoute()
+const loading = ref(false)
+
+const { signOut } = useAuth()
+
+const handleSignOut = async () => {
+  loading.value = true
+  try {
+    await signOut()
+    router.push({ name: 'login' })
+  } catch (error) {
+    console.error('Error signing out:', error)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -20,7 +38,16 @@ const route = useRoute()
         <div class="border-2 border-[#534AB7] size-8 flex items-center justify-center rounded-full">
           S
         </div>
-        <Button variant="secondary" class="cursor-pointer hover:bg-gray-200">Log out</Button>
+        <Button
+          :disabled="loading"
+          type="button"
+          @click="handleSignOut"
+          variant="secondary"
+          class="cursor-pointer hover:bg-gray-200"
+        >
+          <span v-if="loading">Signing out...</span>
+          <span v-else>Sign out</span>
+        </Button>
       </div>
     </header>
 
