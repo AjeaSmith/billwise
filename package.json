@@ -15,16 +15,24 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
-    "@lucide/vue": "^1.16.0",
+    "@internationalized/date": "^3.12.2",
+    "@lucide/vue": "^1.17.0",
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/vue-query": "^5.100.14",
+    "@vee-validate/zod": "^4.15.1",
+    "@vueuse/core": "^14.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "reka-ui": "^2.9.8",
+    "reka-ui": "^2.9.9",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0",
+    "vaul-vue": "^0.4.1",
+    "vee-validate": "^4.15.1",
     "vue": "^3.5.32",
-    "vue-router": "^5.0.4"
+    "vue-router": "^5.0.4",
+    "vue-sonner": "^2.0.9",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",

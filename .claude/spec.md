@@ -21,6 +21,7 @@ A personal bill reminder app that tracks upcoming bills and sends push notificat
 | Layer | Choice | Reason |
 |---|---|---|
 | Frontend | Vue 3 + Vite | Familiar, fast to build |
+| Server state | TanStack Query (`@tanstack/vue-query`) | Handles fetching, caching, background refetching, and mutations for all server data |
 | PWA | vite-plugin-pwa (Workbox) | Service worker + manifest generation, works seamlessly with Vite |
 | Backend / DB | Supabase | Auth, database, and edge functions in one |
 | Push Notifications | Web Push (VAPID) + Supabase Edge Functions | Free, no third-party service needed |
@@ -162,7 +163,7 @@ When a new version is deployed, a non-intrusive toast appears at the bottom of t
 
 ### Frontend — Vue 3 + Vite
 
-Vue 3 with the Composition API throughout. A `useBills` composable handles all bill data fetching, optimistic updates, and cycle reset logic. A `usePush` composable manages permission state, subscription registration, and the install prompt. Pinia for global state: bill list, current paid statuses, and user settings. Vue Router for navigation between the bill list, add/edit form, and settings.
+Vue 3 with the Composition API throughout. TanStack Query (`@tanstack/vue-query`) handles all server state — fetching, caching, background refetching, and mutations for bills and user settings via `useQuery` and `useMutation`. Composables wrap TanStack Query hooks to keep components clean (e.g. `useBills`, `useCreateBill`, `useUpdateBill`). A `usePush` composable manages permission state, subscription registration, and the install prompt. Vue Router for navigation between the bill list, add/edit form, and settings.
 
 ### Styling — Tailwind v4 + shadcn-vue
 

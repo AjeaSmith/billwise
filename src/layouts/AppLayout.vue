@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { RouterLink, useRoute } from 'vue-router'
-import { Home, Settings, Plus } from '@lucide/vue'
+import { Home, Settings } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/bills/useAuth'
 import router from '@/router'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const route = useRoute()
 const loading = ref(false)
@@ -22,10 +22,6 @@ const handleSignOut = async () => {
     loading.value = false
   }
 }
-
-const currentMonthYear = computed(() => {
-  return new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-})
 </script>
 
 <template>
@@ -33,12 +29,9 @@ const currentMonthYear = computed(() => {
     <header
       class="fixed top-0 left-0 right-0 z-20 h-14 bg-white flex items-center justify-between px-4 shadow-sm"
     >
-      <div class="flex flex-col">
-        <div>
-          <span class="text-[#534AB7] font-normal text-xl">Bill</span>
-          <span class="text-[#534AB7] font-bold text-xl">wise</span>
-        </div>
-        <p class="text-xs text-neutral-500">{{ currentMonthYear }}</p>
+      <div>
+        <span class="text-[#534AB7] font-normal text-xl">Bill</span>
+        <span class="text-[#534AB7] font-bold text-xl">wise</span>
       </div>
 
       <div class="flex items-center gap-3">
@@ -61,15 +54,6 @@ const currentMonthYear = computed(() => {
     <main class="flex-1 overflow-y-auto pt-14 pb-28 px-4">
       <RouterView />
     </main>
-
-    <button
-      class="cursor-pointer fixed z-30 bottom-20 right-5 size-13 flex items-center justify-center rounded-full bg-[#534AB7] text-white shadow-lg"
-      @click="console.log('open add bill sheet')"
-      aria-label="Add new bill"
-    >
-      <Plus :size="24" />
-    </button>
-
     <nav
       class="fixed bottom-0 left-0 right-0 z-20 h-14 bg-white border-t border-neutral-200 pb-safe flex"
     >
