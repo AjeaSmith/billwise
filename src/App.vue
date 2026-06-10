@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/composables/bills/useAuth'
 const { loading } = useAuth()
+import 'vue-sonner/style.css'
+import { Toaster } from '@/components/ui/sonner'
 </script>
 
 <template>
@@ -8,6 +10,7 @@ const { loading } = useAuth()
     <span class="text-muted-foreground text-sm">Loading…</span>
   </div>
   <RouterView v-else />
+  <Toaster />
 </template>
 
 <style scoped></style>
