@@ -37,7 +37,7 @@ const formSchema = z.object({
 // ─── Form ───────────────────────────────────────────────────────────────
 const date = ref(fromDate(new Date(), getLocalTimeZone())) as Ref<DateValue>
 
-const { calculateNextDueDate } = useBills()
+const { calculateNextMonth, calculateNextYear } = useBills()
 const { isPending, isError, error, mutate } = useAddBill()
 
 const form = useForm({
@@ -53,15 +53,16 @@ const form = useForm({
     if (!date.value) {
       return toast.error('Please select a due date.')
     }
-    const nextDueDate = calculateNextDueDate.value(date.value.toString(), recurrence as Recurrence)
-
     mutate(
       {
         name,
         amount,
         due_date: date.value.toString().split('T')[0]!,
         recurrence,
-        next_due_date: nextDueDate.toISOString(),
+        next_due_date:
+          recurrence === 'monthly'
+            ? calculateNextMonth.value(date.value!.day).toISOString()
+            : calculateNextYear.value(date.value!.toString()),
       },
       {
         onSuccess: () => {
