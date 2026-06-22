@@ -19,6 +19,7 @@
     "@lucide/vue": "^1.17.0",
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/vue-form": "^1.33.0",
     "@tanstack/vue-query": "^5.100.14",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.3.0",

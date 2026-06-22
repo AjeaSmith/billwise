@@ -8,21 +8,26 @@ import type { Bill } from '@/types'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 
 import { useFetchBills } from '@/composables/bills/useFetchBills.ts'
-import { useBillsSummary } from '@/composables/bills/useBillsSummary.ts'
+import { useBills } from '@/composables/bills/useBills.ts'
 import { Plus, X } from '@lucide/vue'
 import AddBill from '@/components/AddBill.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { Button } from '@/components/ui/button'
+import EditBill from '@/components/EditBill.vue'
 
 const { data, isPending, error } = useFetchBills()
-const { groupedBills, todaysDate } = useBillsSummary(data)
+const { groupedBills, todaysDate } = useBills(data)
 
 const open = ref(false)
 const selectedBill = ref<Bill | null>(null)
 
-function openDrawer(bill: Bill) {
+function openEditDrawer(bill: Bill) {
   open.value = true
   selectedBill.value = bill
+}
+function openAddBillDrawer() {
+  open.value = true
+  selectedBill.value = null
 }
 </script>
 
@@ -48,25 +53,26 @@ function openDrawer(bill: Bill) {
           :key="bill.id"
           :bill="bill"
           class="mb-3 cursor-pointer"
-          @edit="openDrawer"
+          @edit="openEditDrawer(bill)"
         />
       </div>
       <button
         class="cursor-pointer fixed z-30 bottom-20 right-5 size-13 flex items-center justify-center rounded-full bg-[#534AB7] text-white shadow-lg"
-        @click="open = true"
+        @click="openAddBillDrawer"
       >
         <Plus :size="24" />
       </button>
       <Drawer v-model:open="open">
         <DrawerContent>
           <DrawerHeader class="flex flex-row items-center justify-between">
-            <DrawerTitle class="text-xl">Add a Bill</DrawerTitle>
+            <DrawerTitle class="text-xl">{{ selectedBill ? 'Edit Bill' : 'Add Bill' }}</DrawerTitle>
             <Button variant="outline" @click="open = false" class="size-10.5 border-2 shadow-none">
               <X :size="20" />
             </Button>
           </DrawerHeader>
           <Separator class="mb-3" />
-          <AddBill @success="open = false" />
+          <EditBill v-if="selectedBill" :bill="selectedBill" @success="open = false" />
+          <AddBill v-else @success="open = false" />
         </DrawerContent>
       </Drawer>
     </div>

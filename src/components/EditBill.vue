@@ -1,71 +1,87 @@
 <script setup lang="ts">
-import { z } from 'zod'
 import { useForm } from '@tanstack/vue-form'
-import { toast } from 'vue-sonner'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
-import { fromDate, getLocalTimeZone, type DateValue } from '@internationalized/date'
-import { Calendar } from '@/components/ui/calendar'
+import { z } from 'zod'
+import { CalendarDate } from '@internationalized/date'
+import type { DateValue } from '@internationalized/date'
+import { Button } from '@/components/ui/button'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import type { Bill, Recurrence } from '@/types'
+import { Calendar } from './ui/calendar'
 import { ref, type Ref } from 'vue'
-import { Field, FieldError, FieldGroup, FieldLabel, FieldDescription } from '@/components/ui/field'
-
-import { Separator } from './ui/separator'
-import { CalendarIcon } from '@lucide/vue'
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group'
-
-import { useAddBill } from '@/composables/bills/useAddBill'
-import { Spinner } from './ui/spinner'
 import { useBills } from '@/composables/bills/useBills'
-import type { Recurrence } from '@/types'
+import { CalendarIcon } from '@lucide/vue'
+import { Separator } from './ui/separator'
+import { Spinner } from './ui/spinner'
+import { useEditBill } from '@/composables/bills/useEditBill'
+import { toast } from 'vue-sonner'
 
-const emit = defineEmits<{ success: [] }>()
+// ─── Props & Emits ───────────────────────────────────────────────────────────
+const props = defineProps<{
+  bill: Bill
+  isLoading?: boolean
+}>()
+
+const emit = defineEmits<{
+  submit: [values: Bill]
+  success: []
+}>()
 
 // ─── Constants ───────────────────────────────────────────────────────────────
+
 const recurrenceOptions: { value: Recurrence; label: string }[] = [
   { value: 'monthly', label: 'Monthly' },
   { value: 'yearly', label: 'Yearly' },
 ]
 
-// ─── Schema ───────────────────────────────────────────────────────────────
-const formSchema = z.object({
-  name: z.string().min(1, 'Field is required.').max(32, 'name must be at most 32 characters.'),
+// ─── Schema ──────────────────────────────────────────────────────────────────
 
-  amount: z.coerce.number(),
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required.').max(100, 'Name must be under 100 characters.'),
+  amount: z.coerce.number().multipleOf(0.01, 'Max 2 decimal places.'),
   recurrence: z.enum(['monthly', 'yearly'], { message: 'Select a recurrence.' }),
 })
 
-// ─── Form ───────────────────────────────────────────────────────────────
-const date = ref(fromDate(new Date(), getLocalTimeZone())) as Ref<DateValue>
+// ─── Form ────────────────────────────────────────────────────────────────────
+const { mutate, isPending, isError, error } = useEditBill()
+const { calculateNextMonth, calculateNextYear } = useBills()
 
-const { calculateNextDueDate } = useBills()
-const { isPending, isError, error, mutate } = useAddBill()
+function isoToCalendarDate(iso: string): CalendarDate {
+  const [year, month, day] = iso.split('-').map(Number)
+  return new CalendarDate(year!, month!, day!)
+}
+
+const dueDate = ref(isoToCalendarDate(props.bill.due_date)) as Ref<DateValue | undefined>
 
 const form = useForm({
   defaultValues: {
-    name: '',
-    amount: 0,
-    recurrence: 'monthly',
+    name: props.bill.name,
+    amount: props.bill.amount,
+    recurrence: props.bill.recurrence,
   },
   validators: {
     onSubmit: formSchema,
   },
   onSubmit: ({ value: { name, amount, recurrence } }) => {
-    if (!date.value) {
-      return toast.error('Please select a due date.')
-    }
-    const nextDueDate = calculateNextDueDate.value(date.value.toString(), recurrence as Recurrence)
-
+    console.log(dueDate.value!.toString())
     mutate(
       {
-        name,
-        amount,
-        due_date: date.value.toString().split('T')[0]!,
-        recurrence,
-        next_due_date: nextDueDate.toISOString(),
+        id: props.bill.id,
+        updatedBill: {
+          name,
+          amount,
+          due_date: dueDate.value!.toString().split('T')[0]!,
+          recurrence,
+          next_due_date:
+            recurrence === 'monthly'
+              ? calculateNextMonth.value(dueDate.value!.day).toISOString()
+              : calculateNextYear.value(dueDate.value!.toString()),
+        },
       },
       {
         onSuccess: () => {
-          toast.success('Bill added successfully!')
+          toast.success('Changes saved successfully!')
           emit('success')
         },
         onError: (error) => {
@@ -75,17 +91,18 @@ const form = useForm({
     )
   },
 })
+
 function isInvalid(field: any): boolean {
   return field.state.meta.isTouched && !field.state.meta.isValid
 }
 </script>
 
 <template>
-  <!-- TODO: calculate next due date based on yearly selection -->
   <section class="overflow-y-auto px-5">
-    <form @submit.prevent="form.handleSubmit" class="text-neutral-800 space-y-5">
-      <p v-if="isError" class="text-red-500 font-semibold">{{ error?.message }}</p>
-      <FieldGroup class="flex flex-col gap-4">
+    <p v-if="isError" class="text-red-500 font-semibold">{{ error?.message }}></p>
+    <form @submit.prevent="form.handleSubmit">
+      <FieldGroup>
+        <!-- Name -->
         <form.Field v-slot="{ field }" name="name">
           <Field :data-invalid="isInvalid(field)">
             <FieldLabel :for="field.name">Name</FieldLabel>
@@ -102,6 +119,8 @@ function isInvalid(field: any): boolean {
             <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
           </Field>
         </form.Field>
+
+        <!-- Amount -->
         <form.Field v-slot="{ field }" name="amount">
           <Field :data-invalid="isInvalid(field)">
             <FieldLabel :for="field.name"
@@ -131,19 +150,18 @@ function isInvalid(field: any): boolean {
             <FieldError v-if="isInvalid(field)" :errors="field.state.meta.errors" />
           </Field>
         </form.Field>
-
         <div>
-          <FieldLabel for="dueDate" class="mb-3">Due date</FieldLabel>
+          <p class="mb-3 text-sm font-medium">Due date</p>
           <div class="border border-[#534AB7] shadow-sm rounded-md">
             <p class="flex justify-between p-3">
               <span class="text-gray-400">Select a day</span>
-              <CalendarIcon id="dueDate" class="text-[#534AB7] size-5" />
+              <CalendarIcon class="text-[#534AB7] size-5" />
             </p>
             <Separator />
-            <Calendar v-model="date" :default-placeholder="date" />
+            <Calendar v-model="dueDate" :default-placeholder="dueDate" />
           </div>
         </div>
-
+        <!-- Recurrence -->
         <form.Field v-slot="{ field }" name="recurrence">
           <Field :data-invalid="isInvalid(field)">
             <FieldLabel>Recurrence</FieldLabel>
@@ -172,13 +190,17 @@ function isInvalid(field: any): boolean {
           </Field>
         </form.Field>
       </FieldGroup>
-      <Button class="w-full mb-3 py-6" type="submit" :disabled="!date || isPending">
-        <span v-if="isPending" class="flex gap-2 items-center justify-center">
-          <Spinner class="size-5" />
-          Adding...
-        </span>
-        <span v-else>Add Bill</span>
-      </Button>
+
+      <!-- Actions -->
+      <Field orientation="horizontal" class="my-4">
+        <Button type="submit" :disabled="isPending" class="w-full">
+          <span v-if="isPending" class="flex gap-2 items-center justify-center">
+            <Spinner class="size-5" />
+            Saving…
+          </span>
+          <span v-else>Save changes</span>
+        </Button>
+      </Field>
     </form>
   </section>
 </template>
