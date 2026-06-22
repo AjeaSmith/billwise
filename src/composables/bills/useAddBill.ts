@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import supabase from '@/lib/supabase'
-import type { Bill } from '@/types'
+import type { NewBill, Bill } from '@/types'
 import { useAuth } from './useAuth'
 
 export function useAddBill() {
   const queryClient = useQueryClient()
   const { user } = useAuth()
   return useMutation({
-    mutationFn: async (newBill: Bill) => {
+    mutationFn: async (newBill: NewBill) => {
       const { data, error } = await supabase
         .from('bills')
         .insert({ ...newBill, user_id: user.value?.id })

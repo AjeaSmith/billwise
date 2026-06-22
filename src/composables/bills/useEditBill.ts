@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import supabase from '@/lib/supabase'
-import type { Bill } from '@/types';
+import type { Bill, EditBill } from '@/types'
 
-export function useEditBills() {
+export function useEditBill() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, updatedBill }: { id: string; updatedBill: Bill }) => {
+    mutationFn: async ({ id, updatedBill }: { id: string; updatedBill: EditBill }) => {
       const { data, error } = await supabase
         .from('bills')
         .update(updatedBill)
