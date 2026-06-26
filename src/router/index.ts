@@ -1,4 +1,4 @@
-import { useAuth } from '@/composables/bills/useAuth.ts'
+import { useAuth } from '@/composables/auth/useAuth.ts'
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 

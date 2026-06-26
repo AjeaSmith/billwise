@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useForm } from '@tanstack/vue-form'
+import { useForm, type AnyFieldApi } from '@tanstack/vue-form'
 import { z } from 'zod'
 import { CalendarDate } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
@@ -26,6 +26,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   submit: [values: Bill]
   success: []
+  openDeleteDialog: [bill: Bill]
 }>()
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -64,7 +65,6 @@ const form = useForm({
     onSubmit: formSchema,
   },
   onSubmit: ({ value: { name, amount, recurrence } }) => {
-    console.log(dueDate.value!.toString())
     mutate(
       {
         id: props.bill.id,
@@ -92,8 +92,11 @@ const form = useForm({
   },
 })
 
-function isInvalid(field: any): boolean {
+function isInvalid(field: AnyFieldApi): boolean {
   return field.state.meta.isTouched && !field.state.meta.isValid
+}
+function openDeleteDialog() {
+  emit('openDeleteDialog', props.bill)
 }
 </script>
 
@@ -192,13 +195,22 @@ function isInvalid(field: any): boolean {
       </FieldGroup>
 
       <!-- Actions -->
-      <Field orientation="horizontal" class="my-4">
-        <Button type="submit" :disabled="isPending" class="w-full">
+      <Field orientation="vertical" class="my-4">
+        <Button type="submit" :disabled="isPending" class="py-3">
           <span v-if="isPending" class="flex gap-2 items-center justify-center">
             <Spinner class="size-5" />
             Saving…
           </span>
           <span v-else>Save changes</span>
+        </Button>
+        <Button
+          @click="openDeleteDialog"
+          class="py-3"
+          variant="destructive"
+          type="button"
+          :disabled="isPending"
+        >
+          Delete bill
         </Button>
       </Field>
     </form>

@@ -6,7 +6,16 @@ import BillCard from '@/components/BillCard.vue'
 import { Spinner } from '../components/ui/spinner'
 import type { Bill } from '@/types'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { useFetchBills } from '@/composables/bills/useFetchBills.ts'
 import { useBills } from '@/composables/bills/useBills.ts'
 import { Plus, X } from '@lucide/vue'
@@ -14,11 +23,15 @@ import AddBill from '@/components/AddBill.vue'
 import Separator from '@/components/ui/separator/Separator.vue'
 import { Button } from '@/components/ui/button'
 import EditBill from '@/components/EditBill.vue'
+import { useDeleteBill } from '@/composables/bills/useDeleteBill.ts'
+import { toast } from 'vue-sonner'
 
 const { data, isPending, error } = useFetchBills()
+const { mutate, isPending: isDeleting } = useDeleteBill()
 const { groupedBills, todaysDate } = useBills(data)
 
 const open = ref(false)
+const openConfirm = ref(false)
 const selectedBill = ref<Bill | null>(null)
 
 function openEditDrawer(bill: Bill) {
@@ -28,6 +41,25 @@ function openEditDrawer(bill: Bill) {
 function openAddBillDrawer() {
   open.value = true
   selectedBill.value = null
+}
+function openDeleteDialog(bill: Bill) {
+  selectedBill.value = bill
+  openConfirm.value = true
+}
+function handleDelete() {
+  mutate(
+    { id: selectedBill.value!.id },
+    {
+      onSuccess: () => {
+        openConfirm.value = false
+        open.value = false
+        toast.success('Bill deleted successfully!')
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    },
+  )
 }
 </script>
 
@@ -71,10 +103,36 @@ function openAddBillDrawer() {
             </Button>
           </DrawerHeader>
           <Separator class="mb-3" />
-          <EditBill v-if="selectedBill" :bill="selectedBill" @success="open = false" />
+          <EditBill
+            v-if="selectedBill"
+            :bill="selectedBill"
+            @success="open = false"
+            @open-delete-dialog="openDeleteDialog"
+          />
           <AddBill v-else @success="open = false" />
         </DrawerContent>
       </Drawer>
+      <AlertDialog v-model:open="openConfirm">
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your account and remove
+              your data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction @click="handleDelete">
+              <span v-if="isDeleting" class="flex gap-2 items-center justify-center">
+                <Spinner class="size-5" />
+                Deleting...
+              </span>
+              <span v-else>Delete </span>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   </section>
 </template>

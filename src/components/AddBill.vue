@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { z } from 'zod'
-import { useForm } from '@tanstack/vue-form'
+import { useForm, type AnyFieldApi } from '@tanstack/vue-form'
 import { toast } from 'vue-sonner'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
@@ -76,7 +76,7 @@ const form = useForm({
     )
   },
 })
-function isInvalid(field: any): boolean {
+function isInvalid(field: AnyFieldApi): boolean {
   return field.state.meta.isTouched && !field.state.meta.isValid
 }
 </script>

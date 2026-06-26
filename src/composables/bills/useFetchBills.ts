@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query'
 import supabase from '@/lib/supabase'
-import { useAuth } from './useAuth'
+import { useAuth } from '../auth/useAuth'
 import type { Bill } from '@/types'
 
 export function useFetchBills() {
