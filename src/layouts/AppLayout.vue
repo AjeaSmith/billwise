@@ -2,7 +2,7 @@
 import { RouterLink, useRoute } from 'vue-router'
 import { Home, Settings } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/composables/bills/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 import router from '@/router'
 import { ref } from 'vue'
 

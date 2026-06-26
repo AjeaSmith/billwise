@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuth } from '@/composables/bills/useAuth'
+import { useAuth } from '@/composables/auth/useAuth'
 const { loading } = useAuth()
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'

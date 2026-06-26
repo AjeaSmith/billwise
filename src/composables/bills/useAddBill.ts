@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import supabase from '@/lib/supabase'
 import type { NewBill, Bill } from '@/types'
-import { useAuth } from './useAuth'
+import { useAuth } from '../auth/useAuth'
 
 export function useAddBill() {
   const queryClient = useQueryClient()
