@@ -25,9 +25,11 @@ import { Button } from '@/components/ui/button'
 import EditBill from '@/components/EditBill.vue'
 import { useDeleteBill } from '@/composables/bills/useDeleteBill.ts'
 import { toast } from 'vue-sonner'
+import { useMarkPaid } from '@/composables/bills/useMarkPaid.ts'
 
 const { data, isPending, error } = useFetchBills()
 const { mutate, isPending: isDeleting } = useDeleteBill()
+const { mutate: markPaid } = useMarkPaid()
 const { groupedBills, todaysDate } = useBills(data)
 
 const open = ref(false)
@@ -46,14 +48,30 @@ function openDeleteDialog(bill: Bill) {
   selectedBill.value = bill
   openConfirm.value = true
 }
-function handleDelete() {
+function handleDelete(bill: Bill) {
   mutate(
-    { id: selectedBill.value!.id },
+    { id: bill.id },
     {
       onSuccess: () => {
         openConfirm.value = false
         open.value = false
-        toast.success('Bill deleted successfully!')
+        toast.success('Bill paid successfully!')
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    },
+  )
+}
+function handleMarkPaid(bill: Bill) {
+  markPaid(
+    { id: bill.id, paid: !bill.is_paid },
+    {
+      onSuccess: () => {
+        openConfirm.value = false
+        open.value = false
+        if (bill.is_paid) toast.success('Mark Unpaid!')
+        else toast.success('Mark Paid!')
       },
       onError: (error) => {
         toast.error(error.message)
@@ -86,6 +104,7 @@ function handleDelete() {
           :bill="bill"
           class="mb-3 cursor-pointer"
           @edit="openEditDrawer(bill)"
+          @mark-paid="handleMarkPaid(bill)"
         />
       </div>
       <button
