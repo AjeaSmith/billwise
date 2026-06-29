@@ -48,14 +48,17 @@ function openDeleteDialog(bill: Bill) {
   selectedBill.value = bill
   openConfirm.value = true
 }
-function handleDelete(bill: Bill) {
+function handleDelete() {
+  const bill = selectedBill.value
+  if (!bill) return
+
   mutate(
     { id: bill.id },
     {
       onSuccess: () => {
         openConfirm.value = false
         open.value = false
-        toast.success('Bill paid successfully!')
+        toast.success('Bill deleted successfully!')
       },
       onError: (error) => {
         toast.error(error.message)
