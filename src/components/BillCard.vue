@@ -4,9 +4,10 @@ import { CheckIcon } from '@lucide/vue'
 import type { Bill } from '@/types'
 import { daysUntil } from '@/lib/utils'
 import { usePointerSwipe } from '@vueuse/core'
+import { Button } from './ui/button'
 
 const props = defineProps<{ bill: Bill }>()
-const emit = defineEmits(['edit', 'open-delete-dialog'])
+const emit = defineEmits(['edit', 'mark-paid'])
 
 const wasSwipedLeft = ref(false)
 const el = useTemplateRef('el')
@@ -18,20 +19,23 @@ const { distanceX, isSwiping } = usePointerSwipe(el, {
   onSwipeEnd() {
     setTimeout(() => {
       wasSwipedLeft.value = false
-      emit('open-delete-dialog', props.bill)
+      emit('mark-paid', props.bill)
     }, 300)
   },
 })
 
-const cardOffSet = computed(() =>
-  isSwiping.value ? Math.min(Math.max(distanceX.value, 0), 80) : 0,
-)
+const cardOffSet = computed(() => {
+  if (!isSwiping.value) return 0
+  const swipeDistance = props.bill.is_paid ? 105 : 90
+  return isSwiping.value ? Math.min(Math.max(distanceX.value, 0), swipeDistance) : 0
+})
+
 function openEditDrawer() {
   if (wasSwipedLeft.value) return
   else emit('edit', props.bill)
 }
 const borderClass = computed(() => {
-  if (props.bill.is_paid) return 'rounded-xl border-l-transparent'
+  if (props.bill.is_paid) return 'rounded-xl'
   if (!props.bill.next_due_date) return 'border-l-transparent'
   const days = daysUntil(props.bill.next_due_date)
   if (days <= 0) return 'border-l-4 border-l-red-500'
@@ -63,15 +67,21 @@ const amountText = computed(() =>
 </script>
 
 <template>
-  <div ref="el" class="relative overflow-hidden">
-    <button class="absolute right-0 top-4 bg-red-500 text-white p-2">DELETE</button>
+  <div ref="el" :class="['relative overflow-hidden', bill.is_paid ? 'opacity-50' : '']">
+    <Button
+      type="button"
+      `@click.stop`="emit('mark-paid', bill)"
+      class="h-3/4 rounded-xl absolute right-0 top-2.5 bg-green-700 text-white px-2 py-2"
+    >
+      <span v-if="bill.is_paid">Mark Unpaid</span>
+      <span v-else>Mark paid</span>
+    </Button>
     <div
       :style="{ transform: `translateX(-${cardOffSet}px)` }"
       @click="openEditDrawer"
       :class="[
         'flex items-center gap-3 bg-white rounded-r-xl px-4 py-4 border border-gray-200',
         borderClass,
-        bill.is_paid ? 'opacity-50' : '',
       ]"
     >
       <div
