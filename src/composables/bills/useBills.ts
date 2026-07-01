@@ -51,14 +51,22 @@ export function useBills(bills?: Ref<Bill[], Bill[]> | Ref<undefined, undefined>
     return clamped
   })
   const calculateNextYear = computed(() => (dateStr: string) => {
-    const [y, m, d] = dateStr.split('-').map(Number)
-    const nextYear = y! + 1
+    const [, m, d] = dateStr.split('-').map(Number)
+    const today = new Date(now.value)
+    today.setHours(0, 0, 0, 0)
+    const currentYear = today.getFullYear()
 
-    // Clamp to last valid day of that month in the next year
-    const lastDay = new Date(nextYear, m!, 0).getDate()
-    const clampedDay = Math.min(d!, lastDay)
+    const lastDayThisYear = new Date(currentYear, m!, 0).getDate()
+    const clampedDayThisYear = Math.min(d!, lastDayThisYear)
+    const thisYearDate = new Date(currentYear, m! - 1, clampedDayThisYear)
 
-    return `${nextYear}-${String(m).padStart(2, '0')}-${String(clampedDay).padStart(2, '0')}`
+    if (thisYearDate < today) {
+      const nextYear = currentYear + 1
+      const lastDayNextYear = new Date(nextYear, m!, 0).getDate()
+      return `${nextYear}-${String(m).padStart(2, '0')}-${String(Math.min(d!, lastDayNextYear)).padStart(2, '0')}`
+    }
+
+    return `${currentYear}-${String(m).padStart(2, '0')}-${String(clampedDayThisYear).padStart(2, '0')}`
   })
 
   return { groupedBills, todaysDate, calculateNextMonth, calculateNextYear }
