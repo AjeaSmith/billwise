@@ -70,7 +70,7 @@ const amountText = computed(() =>
   <div ref="el" :class="['relative overflow-hidden', bill.is_paid ? 'opacity-50' : '']">
     <Button
       type="button"
-      `@click.stop`="emit('mark-paid', bill)"
+      @click.stop="emit('mark-paid', bill)"
       class="h-3/4 rounded-xl absolute right-0 top-2.5 bg-green-700 text-white px-2 py-2"
     >
       <span v-if="bill.is_paid">Mark Unpaid</span>
