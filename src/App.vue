@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/auth/useAuth'
-const { loading } = useAuth()
+import { usePWA } from '@/composables/pwa/usePWA'
 import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
+
+const { loading } = useAuth()
+usePWA() // eagerly registers beforeinstallprompt listener at app startup
 </script>
 
 <template>
