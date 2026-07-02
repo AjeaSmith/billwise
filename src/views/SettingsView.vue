@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Share2, Plus, ArrowDownToLine, CheckCircle } from '@lucide/vue'
+import { Share2, Plus, ArrowDownToLine, CircleCheck } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { usePWA } from '@/composables/pwa/usePWA'
 
@@ -14,7 +14,7 @@ const { isInstallable, isInstalled, isIOS, promptInstall } = usePWA()
       v-if="isInstalled"
       class="flex items-center gap-3 bg-white rounded-xl px-4 py-4 border border-gray-200"
     >
-      <CheckCircle class="w-5 h-5 text-green-500 shrink-0" />
+      <CircleCheck class="w-5 h-5 text-green-500 shrink-0" />
       <div>
         <p class="text-sm font-semibold text-neutral-900">App installed</p>
         <p class="text-xs text-neutral-400 mt-0.5">You're using the installed version of Billwise</p>

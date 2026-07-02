@@ -7,7 +7,8 @@ interface BeforeInstallPromptEvent extends Event {
 
 function detectStandalone(): boolean {
   const mediaMatch = window.matchMedia('(display-mode: standalone)').matches
-  const iosStandalone = (window.navigator as unknown as { standalone?: boolean }).standalone === true
+  const iosStandalone =
+    (window.navigator as unknown as { standalone?: boolean }).standalone === true
   return mediaMatch || iosStandalone
 }
 
@@ -40,10 +41,13 @@ window.addEventListener('appinstalled', () => {
 export function usePWA() {
   async function promptInstall() {
     if (!deferredPrompt) return
-    await deferredPrompt.prompt()
-    await deferredPrompt.userChoice
-    deferredPrompt = null
-    isInstallable.value = false
+    try {
+      await deferredPrompt.prompt()
+      await deferredPrompt.userChoice
+    } finally {
+      deferredPrompt = null
+      isInstallable.value = false
+    }
   }
 
   return { isInstallable, isInstalled, isIOS, promptInstall }
