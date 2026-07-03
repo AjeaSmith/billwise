@@ -8,7 +8,7 @@ import router from '@/router'
 const email = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
-
+// TODO: Login redirects to localhost:5173/confirmation?email={{email}} but this will be different in production. Need to figure out how to do this dynamically.
 const login = async () => {
   if (!email.value) return
   loading.value = true
