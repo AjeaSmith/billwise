@@ -14,12 +14,16 @@ const user = shallowRef<User | null>(null)
 const session = shallowRef<Session | null>(null)
 const loading = ref(true)
 
-supabase.auth.getSession().then(({ data, error }) => {
-  if (error) console.error(error)
-  session.value = data.session
-  user.value = data.session?.user ?? null
-  loading.value = false
-})
+supabase.auth.getSession()
+  .then(({ data, error }) => {
+    if (error) console.error(error)
+    session.value = data.session
+    user.value = data.session?.user ?? null
+  })
+  .catch((err) => console.error('getSession failed:', err))
+  .finally(() => {
+    loading.value = false
+  })
 
 supabase.auth.onAuthStateChange((_event, newSession) => {
   session.value = newSession

@@ -38,7 +38,8 @@ const router = createRouter({
 const { session, loading } = useAuth()
 
 watch(session, (newSession) => {
-  if (newSession && router.currentRoute.value.name === 'login') {
+  const onAuthPage = ['login', 'sign-up'].includes(router.currentRoute.value.name as string)
+  if (newSession && onAuthPage) {
     router.push({ name: 'bills' })
   }
 })
@@ -62,7 +63,7 @@ router.beforeEach(async (to) => {
   if (requiresAuth && !session.value) {
     return { name: 'login' }
   }
-  if (to.name === 'login' || to.name === 'sign-up' && session.value) {
+  if ((to.name === 'login' || to.name === 'sign-up') && session.value) {
     return { name: 'bills' }
   }
 })
