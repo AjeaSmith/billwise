@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Mail } from '@lucide/vue'
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import supabase from '@/lib/supabase'
+import router from '@/router'
 
 const route = useRoute()
 const email = route.query.email as string
@@ -18,6 +19,18 @@ const resendEmail = async () => {
   loading.value = false
   resent.value = true
 }
+onMounted(async () => {
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      router.push({ name: 'bills' })
+    }
+  })
+  onUnmounted(() => {
+    subscription?.unsubscribe()
+  })
+})
 </script>
 
 <template>
@@ -30,8 +43,8 @@ const resendEmail = async () => {
       <h1 class="text-2xl font-bold text-gray-900 mb-3">Check your inbox</h1>
 
       <p class="text-gray-600 text-sm leading-relaxed mb-8">
-        We sent a sign-in link to <span class="font-semibold text-gray-900">{{ email }}</span>.
-        Tap the link to sign in — it expires in 10 minutes.
+        We sent a sign-in link to <span class="font-semibold text-gray-900">{{ email }}</span
+        >. Tap the link to sign in — it expires in 10 minutes.
       </p>
 
       <div class="flex items-center gap-3">
