@@ -18,12 +18,12 @@ supabase.auth.getSession().then(({ data, error }) => {
   if (error) console.error(error)
   session.value = data.session
   user.value = data.session?.user ?? null
-  loading.value = false
 })
 
 supabase.auth.onAuthStateChange((_event, newSession) => {
   session.value = newSession
   user.value = newSession?.user ?? null
+  loading.value = false
 })
 
 export function useAuth(): UseAuth {
