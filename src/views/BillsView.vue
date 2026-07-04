@@ -110,51 +110,51 @@ function handleMarkPaid(bill: Bill) {
           @mark-paid="handleMarkPaid(bill)"
         />
       </div>
-      <button
-        class="cursor-pointer fixed z-30 bottom-20 right-5 size-13 flex items-center justify-center rounded-full bg-[#534AB7] text-white shadow-lg"
-        @click="openAddBillDrawer"
-      >
-        <Plus :size="24" />
-      </button>
-      <Drawer v-model:open="open">
-        <DrawerContent>
-          <DrawerHeader class="flex flex-row items-center justify-between">
-            <DrawerTitle class="text-xl">{{ selectedBill ? 'Edit Bill' : 'Add Bill' }}</DrawerTitle>
-            <Button variant="outline" @click="open = false" class="size-10.5 border-2 shadow-none">
-              <X :size="20" />
-            </Button>
-          </DrawerHeader>
-          <Separator class="mb-3" />
-          <EditBill
-            v-if="selectedBill"
-            :bill="selectedBill"
-            @success="open = false"
-            @open-delete-dialog="openDeleteDialog"
-          />
-          <AddBill v-else @success="open = false" />
-        </DrawerContent>
-      </Drawer>
-      <AlertDialog v-model:open="openConfirm">
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account and remove
-              your data from our servers.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction @click="handleDelete">
-              <span v-if="isDeleting" class="flex gap-2 items-center justify-center">
-                <Spinner class="size-5" />
-                Deleting...
-              </span>
-              <span v-else>Delete </span>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
+    <Drawer v-model:open="open">
+      <DrawerContent>
+        <DrawerHeader class="flex flex-row items-center justify-between">
+          <DrawerTitle class="text-xl">{{ selectedBill ? 'Edit Bill' : 'Add Bill' }}</DrawerTitle>
+          <Button variant="outline" @click="open = false" class="size-10.5 border-2 shadow-none">
+            <X :size="20" />
+          </Button>
+        </DrawerHeader>
+        <Separator class="mb-3" />
+        <EditBill
+          v-if="selectedBill"
+          :bill="selectedBill"
+          @success="open = false"
+          @open-delete-dialog="openDeleteDialog"
+        />
+        <AddBill v-else @success="open = false" />
+      </DrawerContent>
+    </Drawer>
+    <AlertDialog v-model:open="openConfirm">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your account and remove
+            your data from our servers.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="handleDelete">
+            <span v-if="isDeleting" class="flex gap-2 items-center justify-center">
+              <Spinner class="size-5" />
+              Deleting...
+            </span>
+            <span v-else>Delete </span>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    <button
+      class="cursor-pointer fixed z-30 bottom-20 right-5 size-13 flex items-center justify-center rounded-full bg-[#534AB7] text-white shadow-lg"
+      @click="openAddBillDrawer"
+    >
+      <Plus :size="24" />
+    </button>
   </section>
 </template>
