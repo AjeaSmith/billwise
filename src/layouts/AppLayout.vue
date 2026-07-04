@@ -9,7 +9,7 @@ import { ref } from 'vue'
 const route = useRoute()
 const loading = ref(false)
 
-const { signOut } = useAuth()
+const { signOut, user } = useAuth()
 
 const handleSignOut = async () => {
   loading.value = true
@@ -36,7 +36,7 @@ const handleSignOut = async () => {
 
       <div class="flex items-center gap-3">
         <div class="border-2 border-[#534AB7] size-8 flex items-center justify-center rounded-full">
-          S
+          {{ user?.email?.charAt(0).toUpperCase() }}
         </div>
         <Button
           :disabled="loading"
