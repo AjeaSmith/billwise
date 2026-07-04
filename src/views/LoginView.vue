@@ -14,7 +14,12 @@ const login = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
-    const { error } = await supabase.auth.signInWithOtp({ email: email.value })
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.value,
+      options: {
+        emailRedirectTo: 'https://billwise-swart.vercel.app/',
+      },
+    })
     if (error) throw error
     router.push({ name: 'confirmation', query: { email: email.value } })
   } catch (err) {
