@@ -3,25 +3,22 @@ import { Receipt } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { ref } from 'vue'
 import supabase from '@/lib/supabase'
-import router from '@/router'
 
 const email = ref('')
+const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 
 const login = async () => {
-  if (!email.value) return
+  if (!email.value || !password.value) return
   loading.value = true
   errorMessage.value = ''
   try {
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email.value,
-      options: {
-        emailRedirectTo: 'https://billwise-swart.vercel.app/',
-      },
+      password: password.value,
     })
     if (error) throw error
-    router.push({ name: 'confirmation', query: { email: email.value } })
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'An unexpected error occurred'
   } finally {
@@ -51,19 +48,28 @@ const login = async () => {
         class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#534AB7] focus:border-transparent mb-4"
       />
 
+      <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+      <input
+        id="password"
+        v-model="password"
+        type="password"
+        placeholder="••••••••"
+        class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#534AB7] focus:border-transparent mb-4"
+      />
+
       <Button
         :disabled="loading"
         type="submit"
         class="w-full bg-[#534AB7] hover:bg-[#4740a0] text-white rounded-xl py-3 text-base font-medium disabled:opacity-50"
       >
-        <span v-if="loading">Sending magic link...</span>
-        <span v-else>Send magic link</span>
+        <span v-if="loading">Signing in...</span>
+        <span v-else>Sign in</span>
       </Button>
 
       <div class="border-t border-gray-200 my-6" />
 
       <p class="text-center text-sm text-gray-400">
-        We'll email you a link to sign in — no password needed.
+        Sign in to manage your bills.
       </p>
     </form>
   </section>
