@@ -11,6 +11,11 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/sign-up',
+      name: 'sign-up',
+      component: () => import('../views/SignUpView.vue'),
+    },
+    {
       path: '/app',
       redirect: '/app/bills',
       component: () => import('@/layouts/AppLayout.vue'),
@@ -57,7 +62,7 @@ router.beforeEach(async (to) => {
   if (requiresAuth && !session.value) {
     return { name: 'login' }
   }
-  if (to.name === 'login' && session.value) {
+  if (to.name === 'login' || to.name === 'sign-up' && session.value) {
     return { name: 'bills' }
   }
 })

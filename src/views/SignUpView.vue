@@ -9,12 +9,12 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 
-const login = async () => {
+const signUp = async () => {
   if (!email.value || !password.value) return
   loading.value = true
   errorMessage.value = ''
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
     })
@@ -29,7 +29,7 @@ const login = async () => {
 
 <template>
   <section class="min-h-screen bg-gray-50 px-6 pt-16">
-    <form class="mx-auto max-w-2xl" @submit.prevent="login">
+    <form class="mx-auto max-w-2xl" @submit.prevent="signUp">
       <div class="mb-4 w-16 h-16 rounded-2xl bg-indigo-100 flex items-center justify-center">
         <Receipt class="w-8 h-8 text-[#534AB7]" />
       </div>
@@ -38,7 +38,6 @@ const login = async () => {
       </h1>
       <p class="text-gray-500 text-sm mb-8">Never miss a payment</p>
       <p v-if="errorMessage" class="text-red-500 text-sm mb-4">{{ errorMessage }}</p>
-
       <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
       <input
         id="email"
@@ -51,6 +50,7 @@ const login = async () => {
       <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
       <input
         id="password"
+        minlength="8"
         v-model="password"
         type="password"
         placeholder="••••••••"
@@ -62,15 +62,15 @@ const login = async () => {
         type="submit"
         class="w-full bg-[#534AB7] hover:bg-[#4740a0] text-white rounded-xl py-3 text-base font-medium disabled:opacity-50"
       >
-        <span v-if="loading">Signing in...</span>
-        <span v-else>Sign in</span>
+        <span v-if="loading">Signing up...</span>
+        <span v-else>Sign up</span>
       </Button>
 
       <div class="border-t border-gray-200 my-6" />
 
       <p class="text-center text-sm text-gray-400">
-        Don't have an account?
-        <router-link to="/sign-up" class="text-[#534AB7] font-medium">Sign up</router-link>
+        Already have an account?
+        <router-link to="/" class="text-[#534AB7] font-medium">Sign in</router-link>
       </p>
     </form>
   </section>
