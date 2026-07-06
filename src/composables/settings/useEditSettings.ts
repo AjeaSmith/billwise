@@ -21,10 +21,6 @@ export function useEditSettings() {
       return data
     },
     onSuccess: (data) => {
-      // queryClient.setQueryData(
-      //   ['bills', data.user_id],
-      //   (old: Bill[] | undefined) => old?.map((b) => (b.id === data.id ? data : b)) ?? [data],
-      // )
       queryClient.invalidateQueries({ queryKey: ['user_settings', data.user_id] })
     },
   })
