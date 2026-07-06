@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@internationalized/date": "^3.12.2",
-    "@lucide/vue": "^1.21.0",
+    "@lucide/vue": "^1.23.0",
+    "@onesignal/onesignal-vue3": "^2.5.4",
     "@supabase/supabase-js": "^2.106.1",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/vue-form": "^1.33.0",
@@ -25,7 +26,7 @@
     "@vueuse/core": "^14.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "reka-ui": "^2.10.0",
+    "reka-ui": "^2.10.1",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0",
     "vaul-vue": "^0.4.1",

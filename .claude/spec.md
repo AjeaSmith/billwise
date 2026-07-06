@@ -24,7 +24,7 @@ A personal bill reminder app that tracks upcoming bills and sends push notificat
 | Server state | TanStack Query (`@tanstack/vue-query`) | Handles fetching, caching, background refetching, and mutations for all server data |
 | PWA | vite-plugin-pwa (Workbox) | Service worker + manifest generation, works seamlessly with Vite |
 | Backend / DB | Supabase | Auth, database, and edge functions in one |
-| Push Notifications | Web Push (VAPID) + Supabase Edge Functions | Free, no third-party service needed |
+| Push Notifications | OneSignal | Managed web push service — handles subscription, delivery, and iOS/Android compatibility |
 | Scheduling | Supabase Edge Functions + pg_cron | Run daily checks for upcoming bills |
 | Deployment | Vercel or Netlify | HTTPS required for PWA and Web Push |
 
@@ -40,7 +40,7 @@ Features are listed in implementation order — each layer builds on the one bef
 
 ### 1. Authentication
 
-Login is required. Users sign in via magic link (email) — no password needed. All bill data is tied to the authenticated account and persists across devices and reinstalls. On first open, users land on a sign-in screen before reaching the app.
+Login is required. Users sign in via email and password. All bill data is tied to the authenticated account and persists across devices and reinstalls. On first open, users land on a sign-in screen before reaching the app.
 
 ### 2. Bill list
 
@@ -60,7 +60,7 @@ Any existing bill can be edited using the same bottom sheet form, pre-filled wit
 
 ### 6. Delete a bill
 
-Deleting is available from the edit screen behind a confirmation dialog. No undo is available after confirming. The bill is permanently removed and no further notifications will fire.
+A bill is deleted by swiping the bill card left on the bill list, revealing a red delete action. A confirmation dialog prevents accidental deletion. On confirmation, the bill is permanently deleted and no further notifications will fire. There is no undo.
 
 ### 7. Mark as paid
 
@@ -171,11 +171,11 @@ Mobile-first throughout, designed for a ~390px viewport. Bottom navigation bar f
 
 ### Backend — Supabase
 
-Supabase handles auth (magic link — no passwords), the Postgres database, Edge Functions for push sending logic, and `pg_cron` for the daily scheduled job. Login is required — all bill data is tied to an authenticated user account so it persists across devices and reinstalls. Row-level security ensures all data is locked to the authenticated user. The schema covers tables for bills, reminders (tracks which notification windows have fired per cycle), push subscriptions, and user settings.
+Supabase handles auth (email and password), the Postgres database, Edge Functions for push sending logic, and `pg_cron` for the daily scheduled job. Login is required — all bill data is tied to an authenticated user account so it persists across devices and reinstalls. Row-level security ensures all data is locked to the authenticated user. The schema covers tables for bills, reminders (tracks which notification windows have fired per cycle), and user settings. Push subscription management is handled entirely by OneSignal.
 
-### Push Notifications — Web Push (VAPID)
+### Push Notifications — OneSignal
 
-No third-party service, no cost. A VAPID key pair is generated once and the private key is stored as a Supabase secret. The public key is embedded in the frontend. When the user grants notification permission, `PushManager.subscribe()` returns an endpoint and encryption keys that are saved to the `push_subscriptions` table. The Supabase Edge Function that fires notifications uses the `web-push` npm package to encrypt the payload and POST to the browser's push service. If the push endpoint returns a 410 (subscription expired), the subscription is deleted and the user is prompted to re-enable notifications on next open.
+OneSignal handles all web push functionality — subscription management, delivery, and cross-platform compatibility for Android and iOS. The OneSignal SDK is initialised in the app and manages the permission prompt and push subscription automatically. When a bill reminder is due, a Supabase Edge Function calls the OneSignal REST API to send the notification to the user's device. Expired or invalid subscriptions are handled by OneSignal automatically. OneSignal's free tier is sufficient for a single-user personal app.
 
 ### PWA — vite-plugin-pwa (Workbox)
 
@@ -183,7 +183,7 @@ No third-party service, no cost. A VAPID key pair is generated once and the priv
 
 ### Scheduling — pg_cron + Supabase Edge Functions
 
-A `pg_cron` job runs at midnight UTC every day. It queries bills due within any user's active reminder windows, cross-references the reminders table to avoid duplicate sends, and invokes a Supabase Edge Function for each pending notification. The Edge Function handles the VAPID signing and push delivery. Cycle resets (advancing `next_due_date`, flipping `is_paid`) run in the same cron job.
+A `pg_cron` job runs at midnight UTC every day. It queries bills due within any user's active reminder windows, cross-references the reminders table to avoid duplicate sends, and invokes a Supabase Edge Function for each pending notification. The Edge Function calls the OneSignal REST API to deliver the notification. Cycle resets (advancing `next_due_date`, flipping `is_paid`) run in the same cron job.
 
 ### Deployment — Vercel
 
