@@ -14,10 +14,16 @@ const signUp = async () => {
   loading.value = true
   errorMessage.value = ''
   try {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
     })
+    if (data.user) {
+      await supabase
+        .from('user_settings')
+        .update({ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone })
+        .eq('user_id', data.user.id)
+    }
     if (error) throw error
   } catch (err) {
     errorMessage.value = err instanceof Error ? err.message : 'An unexpected error occurred'

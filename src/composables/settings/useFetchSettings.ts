@@ -1,24 +1,22 @@
 import { useQuery } from '@tanstack/vue-query'
 import supabase from '@/lib/supabase'
+import type { Settings } from '@/types'
 import { useAuth } from '../auth/useAuth'
-import type { Bill } from '@/types'
 
-export function useFetchBills() {
+export function useFetchSettings() {
   const { user } = useAuth()
 
   return useQuery({
-    queryKey: ['bills', () => user.value?.id],
+    queryKey: ['user_settings', user.value?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('bills')
+        .from('user_settings')
         .select('*')
         .eq('user_id', user.value?.id)
-        .order('next_due_date', { ascending: true })
+        .single()
+      if (error) throw error
 
-      if (error) {
-        throw error
-      }
-      return data as Bill[]
+      return data as Settings
     },
     staleTime: 1000 * 60 * 5,
     enabled: () => !!user.value?.id,

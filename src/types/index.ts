@@ -9,6 +9,17 @@ export interface Bill {
   user_id: string
   created_at: string
 }
+export interface Settings {
+  id: string
+  push_enabled: boolean
+  send_hour: number
+  reminder_day: number
+  timezone: string
+  user_id: string
+  created_at: string
+}
+
+export type EditSettings = Omit<Settings, 'id' | 'user_id' | 'created_at' | 'timezone'>
 
 export type EditBill = Omit<Bill, 'id' | 'user_id' | 'created_at' | 'is_paid'>
 export type NewBill = Omit<Bill, 'id' | 'user_id' | 'created_at' | 'is_paid'>
