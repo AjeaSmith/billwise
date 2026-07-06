@@ -7,7 +7,7 @@ export function useFetchSettings() {
   const { user } = useAuth()
 
   return useQuery({
-    queryKey: ['user_settings'],
+    queryKey: ['user_settings', user.value?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_settings')
