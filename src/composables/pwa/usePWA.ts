@@ -26,10 +26,22 @@ const isInstalled = ref(detectStandalone())
 const isIOS = ref(detectIOS())
 let deferredPrompt: BeforeInstallPromptEvent | null = null
 
+// beforeinstallprompt fires asynchronously (and only on Chromium browsers), so
+// there's a real "not yet known" state between page load and that event —
+// distinct from browsers that will never fire it. isInstalled/isIOS don't
+// depend on that event, so skip the wait entirely when either is already true.
+const isCheckingInstallSupport = ref(!isInstalled.value && !isIOS.value)
+if (isCheckingInstallSupport.value) {
+  setTimeout(() => {
+    isCheckingInstallSupport.value = false
+  }, 2000)
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault()
   deferredPrompt = e as BeforeInstallPromptEvent
   isInstallable.value = true
+  isCheckingInstallSupport.value = false
 })
 
 window.addEventListener('appinstalled', () => {
@@ -50,5 +62,5 @@ export function usePWA() {
     }
   }
 
-  return { isInstallable, isInstalled, isIOS, promptInstall }
+  return { isInstallable, isInstalled, isIOS, isCheckingInstallSupport, promptInstall }
 }
