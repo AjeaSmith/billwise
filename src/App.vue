@@ -14,7 +14,7 @@ const { data } = useFetchBills()
 usePWA() // eagerly registers beforeinstallprompt listener at app startup
 watch(data, async (newBills) => {
   if (!newBills || newBills.length < 1) return
-  if (permissionState.value === 'granted') return
+  if (permissionState.value !== 'default') return
 
   const result = await requestPermission()
   if (result === 'granted') {
