@@ -57,7 +57,7 @@ const { isInstalled, isIOS, isInstallable, promptInstall } = usePWA() // eagerly
     <Card v-else class="p-5">
       <CardContent class="flex flex-col gap-4 p-0">
         <p class="text-sm text-muted-foreground">
-         Please use a supported browser to install this app. Supported browsers include Chrome, Edge, and Safari.
+          Please use a supported browser to install this app. Supported browsers Safari.
         </p>
       </CardContent>
     </Card>
