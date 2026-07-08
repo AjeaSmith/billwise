@@ -5,21 +5,20 @@ import 'vue-sonner/style.css'
 import { Toaster } from '@/components/ui/sonner'
 import { watch } from 'vue'
 import { useFetchBills } from './composables/bills/useFetchBills'
-import { useOneSignal } from '@onesignal/onesignal-vue3'
+import { usePushNotification } from './composables/notification/usePushNotification'
 
-const oneSignal = useOneSignal()
+const { requestPermission, permissionState, oneSignalLogin } = usePushNotification()
 const { loading, user } = useAuth()
 const { data } = useFetchBills()
 
 usePWA() // eagerly registers beforeinstallprompt listener at app startup
 watch(data, async (newBills) => {
   if (!newBills || newBills.length < 1) return
-  if (oneSignal.Notifications.permission) return
+  if (permissionState.value === 'granted') return
 
-  const granted = await oneSignal.Notifications.requestPermission()
-
-  if (granted) {
-    await oneSignal.login(user.value!.id)
+  const result = await requestPermission()
+  if (result === 'granted') {
+    await oneSignalLogin(user.value!.id)
   }
 })
 </script>
@@ -31,5 +30,3 @@ watch(data, async (newBills) => {
   <RouterView v-else />
   <Toaster />
 </template>
-
-<style scoped></style>

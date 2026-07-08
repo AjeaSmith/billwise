@@ -25,7 +25,7 @@ A personal bill reminder app that tracks upcoming bills and sends push notificat
 | PWA | vite-plugin-pwa (Workbox) | Service worker + manifest generation, works seamlessly with Vite |
 | Backend / DB | Supabase | Auth, database, and edge functions in one |
 | Push Notifications | OneSignal | Managed web push service — handles subscription, delivery, and iOS/Android compatibility |
-| Scheduling | Supabase Edge Functions + pg_cron | Run daily checks for upcoming bills |
+| Scheduling | pg_cron + pg_net | Daily Postgres function triggers notification delivery and cycle resets directly from the database |
 | Deployment | Vercel or Netlify | HTTPS required for PWA and Web Push |
 
 > **Alternative:** Nuxt 3 with `@vite-pwa/nuxt` module on Vercel — same PWA and Web Push capabilities with Nuxt's file-based routing.
@@ -78,19 +78,16 @@ The app is installable to the home screen on both Android and iOS and runs full-
 
 On first open the app requests notification permission. Once granted, notifications fire automatically in the background at the user's configured time. Each notification includes the bill name, amount (if set), and due date. Tapping a notification opens the app directly to that bill. No notification fires for a bill that is already marked paid.
 
-Configurable reminder windows:
+Configurable reminder window (one of three options):
 - 7 days before due
 - 3 days before due
 - Day of due date
 
-Each window can be enabled or disabled independently in Settings.
-
 ### 11. Notification settings
 
 - Enable or disable push notifications
-- Toggle each reminder interval independently (7 days, 3 days, day of)
+- Select a single reminder window — 7 days before, 3 days before, or day of
 - Set the time of day notifications are sent — tapping opens the native device time picker
-- Timezone auto-detects from the device on first open and is displayed as a read-only value; user can manually change it if needed
 - Install the app to home screen (native prompt on Android; step-by-step instructions for iOS)
 
 ### 12. Notification permission denied
@@ -171,7 +168,7 @@ Mobile-first throughout, designed for a ~390px viewport. Bottom navigation bar f
 
 ### Backend — Supabase
 
-Supabase handles auth (email and password), the Postgres database, Edge Functions for push sending logic, and `pg_cron` for the daily scheduled job. Login is required — all bill data is tied to an authenticated user account so it persists across devices and reinstalls. Row-level security ensures all data is locked to the authenticated user. The schema covers tables for bills, reminders (tracks which notification windows have fired per cycle), and user settings. Push subscription management is handled entirely by OneSignal.
+Supabase handles auth (email and password), the Postgres database, and `pg_cron` for the daily scheduled job. Login is required — all bill data is tied to an authenticated user account so it persists across devices and reinstalls. Row-level security ensures all data is locked to the authenticated user. The schema covers two tables: bills and user settings. Push subscription management is handled entirely by OneSignal.
 
 ### Push Notifications — OneSignal
 
@@ -181,9 +178,9 @@ OneSignal handles all web push functionality — subscription management, delive
 
 `vite-plugin-pwa` generates the service worker and `manifest.webmanifest` automatically at build time. Workbox is configured with a cache-first strategy for static assets (JS, CSS, fonts, icons). `skipWaiting` and `clientsClaim` are enabled for instant service worker activation on update. The manifest uses `display: standalone`, a `theme_color` matching the app palette, and includes both 192×192 and 512×512 maskable PNG icons.
 
-### Scheduling — pg_cron + Supabase Edge Functions
+### Scheduling — pg_cron + pg_net
 
-A `pg_cron` job runs at midnight UTC every day. It queries bills due within any user's active reminder windows, cross-references the reminders table to avoid duplicate sends, and invokes a Supabase Edge Function for each pending notification. The Edge Function calls the OneSignal REST API to deliver the notification. Cycle resets (advancing `next_due_date`, flipping `is_paid`) run in the same cron job.
+A `pg_cron` job runs once daily at a fixed UTC time. A single Postgres function handles everything in sequence: reads user settings, resets any bills whose `next_due_date` has passed (advancing `next_due_date` and flipping `is_paid`), then queries bills where `next_due_date = today + reminder_day` and `is_paid = false`. For each matching bill, `pg_net` makes an HTTP POST directly to the OneSignal API to deliver the notification. No Edge Function is needed — the entire scheduling and notification logic lives inside the database function.
 
 ### Deployment — Vercel
 
