@@ -51,11 +51,11 @@ const handleSignOut = async () => {
       </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto pt-14 pb-28 px-4">
+    <main class="flex-1 overflow-y-auto pt-14 pb-28 px-2">
       <RouterView />
     </main>
     <nav
-      class="fixed bottom-0 left-0 right-0 z-20 h-14 bg-white border-t border-neutral-200 pb-safe flex"
+      class="fixed bottom-0 left-0 right-0 z-20 h-16 bg-white border-t border-neutral-200 pb-safe flex"
     >
       <RouterLink
         to="/app/bills"

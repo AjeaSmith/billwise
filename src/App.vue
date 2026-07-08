@@ -19,7 +19,7 @@ watch(data, async (newBills) => {
   const result = await requestPermission()
   if (result === 'granted') {
     await oneSignalLogin(user.value!.id)
-  }
+}
 })
 </script>
 
