@@ -17,6 +17,15 @@ import { useDeleteBill } from '@/composables/bills/useDeleteBill.ts'
 import { toast } from 'vue-sonner'
 import { useMarkPaid } from '@/composables/bills/useMarkPaid.ts'
 import { usePushNotification } from '@/composables/notification/usePushNotification.ts'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 const { data, isPending, error } = useFetchBills()
 const { isDenied, isExpired, reEnableNotifications } = usePushNotification()
