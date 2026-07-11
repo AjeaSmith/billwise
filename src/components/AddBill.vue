@@ -17,6 +17,7 @@ import { useAddBill } from '@/composables/bills/useAddBill'
 import { Spinner } from './ui/spinner'
 import { useBills } from '@/composables/bills/useBills'
 import type { Recurrence } from '@/types'
+import { dateFormatter } from '@/lib/utils'
 
 const emit = defineEmits<{ success: [] }>()
 
@@ -53,16 +54,17 @@ const form = useForm({
     if (!date.value) {
       return toast.error('Please select a due date.')
     }
+    const dateStr = dateFormatter(date)
     mutate(
       {
         name,
         amount,
-        due_date: date.value.toString().split('T')[0]!,
+        due_date: dateStr,
         recurrence,
         next_due_date:
           recurrence === 'monthly'
             ? calculateNextMonth.value(date.value!.day).toISOString()
-            : calculateNextYear.value(date.value!.toString()),
+            : calculateNextYear.value(dateStr),
       },
       {
         onSuccess: () => {

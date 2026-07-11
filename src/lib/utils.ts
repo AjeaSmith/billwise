@@ -1,6 +1,8 @@
 import type { ClassValue } from 'clsx'
 import { clsx } from 'clsx'
+import type { DateValue } from 'reka-ui'
 import { twMerge } from 'tailwind-merge'
+import type { Ref } from 'vue'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -20,3 +22,6 @@ export function daysUntil(dueDate: string) {
   return Math.round((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
+export function dateFormatter(date: Ref<DateValue>): string {
+  return `${date.value!.year}-${String(date.value!.month).padStart(2, '0')}-${String(date.value!.day).padStart(2, '0')}`
+}
