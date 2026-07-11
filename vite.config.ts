@@ -12,13 +12,12 @@ export default defineConfig({
     vueDevTools(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
+      registerType: 'prompt',
       workbox: {
         importScripts: ['/OneSignalSDKWorker.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [],
-        skipWaiting: true,
+        skipWaiting: false,
         clientsClaim: true,
       },
 

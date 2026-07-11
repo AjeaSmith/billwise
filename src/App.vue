@@ -6,6 +6,10 @@ import { Toaster } from '@/components/ui/sonner'
 import { watch } from 'vue'
 import { useFetchBills } from './composables/bills/useFetchBills'
 import { usePushNotification } from './composables/notification/usePushNotification'
+import { useRegisterSW } from 'virtual:pwa-register/vue'
+import { toast } from 'vue-sonner'
+
+const { needRefresh, updateServiceWorker } = useRegisterSW()
 
 const { requestPermission, permissionState, oneSignalLogin } = usePushNotification()
 const { loading, user } = useAuth()
@@ -19,7 +23,18 @@ watch(data, async (newBills) => {
   const result = await requestPermission()
   if (result === 'granted') {
     await oneSignalLogin(user.value!.id)
-}
+  }
+})
+watch(needRefresh, (newVal) => {
+  if (newVal) {
+    toast('Update available — tap to refresh', {
+      duration: Infinity,
+      action: {
+        label: 'Refresh',
+        onClick: () => updateServiceWorker(),
+      },
+    })
+  }
 })
 </script>
 
@@ -28,5 +43,5 @@ watch(data, async (newBills) => {
     <span class="text-muted-foreground text-sm">Loading…</span>
   </div>
   <RouterView v-else />
-  <Toaster />
+  <Toaster position="top-center" />
 </template>
