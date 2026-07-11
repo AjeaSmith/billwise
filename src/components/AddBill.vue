@@ -84,7 +84,6 @@ function isInvalid(field: AnyFieldApi): boolean {
 </script>
 
 <template>
-  <!-- TODO: calculate next due date based on yearly selection -->
   <section class="overflow-y-auto px-5">
     <form @submit.prevent="form.handleSubmit" class="text-neutral-800 space-y-5">
       <p v-if="isError" class="text-red-500 font-semibold">{{ error?.message }}</p>

@@ -104,58 +104,6 @@ When a new version is deployed, a non-intrusive toast appears at the bottom of t
 
 ---
 
-## Flows
-
-### First open — Android
-
-1. App loads to an empty bill list with a prompt to add the first bill
-2. User adds a bill via the bottom sheet form
-3. App requests notification permission
-4. User grants permission — push subscription is saved to the database
-5. Chrome displays the native install banner
-6. User installs — app is now on the home screen and notifications are active
-
-### First open — iOS
-
-1. Same bill-adding flow as Android
-2. App requests notification permission
-3. User grants permission
-4. Settings screen surfaces a card: "To receive notifications, add this app to your Home Screen" with a step-by-step graphic (Share → Add to Home Screen)
-5. User installs to home screen — push notifications are now active
-
-### Daily notification firing
-
-1. Cron job runs at midnight UTC
-2. Queries all bills whose `next_due_date` falls within a user's configured reminder windows
-3. For each match, checks whether a reminder record already exists for that bill, window, and cycle
-4. If not, computes the user's local send time from their timezone and `send_hour` setting
-5. Sends push notification via VAPID to the saved push subscription endpoint
-6. Saves a reminder record marked as `sent` so the same window doesn't fire twice
-7. Notification appears on the lock screen with bill name, amount, and due date
-
-### Marking paid after a notification
-
-1. Push notification fires on the lock screen
-2. User taps — app opens and scrolls to the relevant bill
-3. User taps or swipes the card to mark it paid
-4. A "Marked as paid" toast appears, then the card dims
-5. No further notifications fire for that bill this cycle
-
-### Monthly cycle reset
-
-1. When a bill's `next_due_date` passes, the cron job resets `is_paid` to false and advances `next_due_date` by the recurrence interval
-2. This happens server-side so it works even if the app is never opened
-3. The bill reappears as unpaid on the next open, ready for the new cycle
-
-### App update
-
-1. New version is deployed to Vercel
-2. Service worker detects the update in the background on next app open
-3. A toast appears at the bottom: "Update available — tap to refresh"
-4. User taps — page reloads with the new version, no data lost
-
----
-
 ## Technical Decisions
 
 ### Frontend — Vue 3 + Vite
