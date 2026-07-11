@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import EmptyView from './EmptyView.vue'
 import BillCard from '@/components/BillCard.vue'
 import { Spinner } from '../components/ui/spinner'
 import type { Bill } from '@/types'
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
-import { AlertCircleIcon } from '@lucide/vue'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { useFetchBills } from '@/composables/bills/useFetchBills.ts'
 import { useBills } from '@/composables/bills/useBills.ts'
 import { Plus, X } from '@lucide/vue'
@@ -31,7 +19,7 @@ import { useMarkPaid } from '@/composables/bills/useMarkPaid.ts'
 import { usePushNotification } from '@/composables/notification/usePushNotification.ts'
 
 const { data, isPending, error } = useFetchBills()
-const { permissionState } = usePushNotification()
+const { isDenied, isExpired, reEnableNotifications } = usePushNotification()
 const { mutate, isPending: isDeleting } = useDeleteBill()
 const { mutate: markPaid } = useMarkPaid()
 const { groupedBills, todaysDate } = useBills(data)
@@ -100,16 +88,8 @@ function handleMarkPaid(bill: Bill) {
     </div>
     <EmptyView v-else-if="data?.length === 0" />
     <div v-else class="flex flex-col gap-2 px-4 py-4">
-      <Alert v-if="permissionState === 'denied'" class="mb-2">
-        <AlertCircleIcon />
-        <AlertTitle>Notifications are off.</AlertTitle>
-        <AlertDescription>
-          <p>
-            To get reminders before bills are due, enable notifications for BillWise in your
-            device's Settings app.
-          </p>
-        </AlertDescription>
-      </Alert>
+      <NotificationBanner v-if="isDenied" type="denied" />
+      <NotificationBanner v-else-if="isExpired" type="expired" @reEnable="reEnableNotifications" />
       <h2 class="text-lg mb-2 font-semibold text-neutral-900 uppercase">
         {{ todaysDate }}
       </h2>
