@@ -19,6 +19,7 @@ import { useMarkPaid } from '@/composables/bills/useMarkPaid.ts'
 import { usePushNotification } from '@/composables/notification/usePushNotification.ts'
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -26,6 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import NotificationBanner from '@/components/NotificationBanner.vue'
 
 const { data, isPending, error } = useFetchBills()
 const { isDenied, isExpired, reEnableNotifications } = usePushNotification()
